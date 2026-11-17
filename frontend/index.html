@@ -1,0 +1,251 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Egg Incubator</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="dashboard">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="brand">
+            <div class="brand-icon">🥚</div>
+            <div>
+                <h2>Smart Incubator</h2>
+                <p>IoT Monitoring System</p>
+            </div>
+        </div>
+
+        <nav>
+            <a href="#dashboard" class="nav-link active" data-page="dashboard">
+                ▦ Dashboard
+            </a>
+            <a href="#monitoring" class="nav-link" data-page="monitoring">
+                ◷ Monitoring
+            </a>
+            <a href="#settings" class="nav-link" data-page="settings">
+                ⚙ Pengaturan
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            Smart Egg Incubator<br>
+            Version 2.0
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+
+        <!-- HEADER -->
+        <header class="header">
+            <div>
+                <h1 id="page-title">Dashboard</h1>
+                <p id="page-description">
+                    Ringkasan kondisi inkubator telur
+                </p>
+            </div>
+
+            <div class="connection-box">
+                <span class="status-dot" id="status-dot"></span>
+                <span id="connection-status">Memeriksa koneksi...</span>
+            </div>
+        </header>
+
+        <!-- HALAMAN DASHBOARD -->
+        <section class="page-section active" id="page-dashboard">
+
+            <div class="section-heading">
+                <div>
+                    <h2>Ringkasan Inkubator</h2>
+                    <p>Kondisi terkini perangkat inkubator</p>
+                </div>
+            </div>
+
+            <section class="sensor-grid">
+
+                <div class="sensor-card temperature-card">
+                    <div class="card-top">
+                        <span class="sensor-icon">🌡️</span>
+                        <span class="sensor-label">TEMPERATUR</span>
+                    </div>
+                    <div class="sensor-value">
+                        <span id="temperature">--</span>
+                        <small>°C</small>
+                    </div>
+                    <p>Suhu di dalam inkubator</p>
+                </div>
+
+                <div class="sensor-card humidity-card">
+                    <div class="card-top">
+                        <span class="sensor-icon">💧</span>
+                        <span class="sensor-label">KELEMBAPAN</span>
+                    </div>
+                    <div class="sensor-value">
+                        <span id="humidity">--</span>
+                        <small>%</small>
+                    </div>
+                    <p>Kelembapan udara inkubator</p>
+                </div>
+
+                <div class="sensor-card heater-card">
+                    <div class="card-top">
+                        <span class="sensor-icon">🔥</span>
+                        <span class="sensor-label">HEATER</span>
+                    </div>
+                    <div class="sensor-value" id="heater">--</div>
+                    <p>Status pemanas inkubator</p>
+                </div>
+
+                <div class="sensor-card fuzzy-card">
+                    <div class="card-top">
+                        <span class="sensor-icon">🧠</span>
+                        <span class="sensor-label">OUTPUT FUZZY</span>
+                    </div>
+                    <div class="sensor-value">
+                        <span id="fuzzy">--</span>
+                        <small>%</small>
+                    </div>
+                    <p>Output Fuzzy Sugeno</p>
+                </div>
+
+            </section>
+
+            <div class="panel">
+                <div class="section-heading">
+                    <div>
+                        <h2>Informasi Setpoint</h2>
+                        <p>Target suhu yang diterapkan pada inkubator</p>
+                    </div>
+                </div>
+
+                <div class="sensor-value">
+                    <span id="dashboard-setpoint">--</span>
+                    <small>°C</small>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- HALAMAN MONITORING -->
+        <section class="page-section" id="page-monitoring">
+
+            <div class="section-heading">
+                <div>
+                    <h2>Monitoring Sensor</h2>
+                    <p>Pemantauan perubahan suhu dan kelembapan</p>
+                </div>
+            </div>
+
+            <div class="chart-grid">
+
+                <div class="panel chart-card">
+                    <div class="section-heading">
+                        <div>
+                            <h2>Grafik Suhu</h2>
+                            <p>Perubahan temperatur inkubator</p>
+                        </div>
+                        <span>🌡️</span>
+                    </div>
+                    <canvas id="temperatureChart"></canvas>
+                </div>
+
+                <div class="panel chart-card">
+                    <div class="section-heading">
+                        <div>
+                            <h2>Grafik Kelembapan</h2>
+                            <p>Perubahan kelembapan udara</p>
+                        </div>
+                        <span>💧</span>
+                    </div>
+                    <canvas id="humidityChart"></canvas>
+                </div>
+
+            </div>
+
+            <div class="panel">
+                <div class="section-heading">
+                    <div>
+                        <h2>Informasi Monitoring</h2>
+                        <p>Waktu pembaruan data terakhir</p>
+                    </div>
+                </div>
+                <p id="last-update">Belum ada pembaruan data</p>
+            </div>
+
+        </section>
+
+        <!-- HALAMAN PENGATURAN -->
+        <section class="page-section" id="page-settings">
+
+            <div class="panel">
+                <div class="section-heading">
+                    <div>
+                        <h2>Pengaturan Setpoint</h2>
+                        <p>Atur target suhu inkubator melalui Blynk</p>
+                    </div>
+                    <span>⚙️</span>
+                </div>
+
+                <div class="setpoint-container">
+
+                    <div class="setpoint-input">
+                        <label for="setpoint-input">
+                            Target Suhu (°C)
+                        </label>
+
+                        <input
+                            type="number"
+                            id="setpoint-input"
+                            min="37"
+                            max="38"
+                            step="0.1"
+                            value="37.5"
+                        >
+
+                        <small>Rentang yang diizinkan: 37–38°C</small>
+                    </div>
+
+                    <button id="save-setpoint">
+                        Simpan Setpoint
+                    </button>
+
+                </div>
+
+                <p id="setpoint-message"></p>
+            </div>
+
+            <div class="panel">
+                <div class="section-heading">
+                    <div>
+                        <h2>Informasi Sistem</h2>
+                        <p>Konfigurasi monitoring inkubator</p>
+                    </div>
+                </div>
+
+                <p>Platform: ESP32</p>
+                <p>Cloud: Blynk IoT</p>
+                <p>Sensor: DHT22</p>
+                <p>Metode kontrol: Fuzzy Sugeno</p>
+                <p>Interval monitoring website: 5 detik</p>
+            </div>
+
+        </section>
+
+        <footer>
+            Smart Egg Incubator © 2026
+        </footer>
+
+    </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="js/script.js"></script>
+
+</body>
+</html>
