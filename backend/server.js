@@ -1,16 +1,35 @@
 
 const express = require("express");
 const axios = require("axios");
+const path = require("path");
 require("dotenv").config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const BLYNK_URL = process.env.BLYNK_BASE_URL;
+// Konfigurasi Blynk
+const BLYNK_URL =
+    process.env.BLYNK_BASE_URL || "https://blynk.cloud/external/api";
+
 const BLYNK_TOKEN = process.env.BLYNK_AUTH_TOKEN;
 
-// Middleware
+// ========================================
+// MIDDLEWARE
+// ========================================
+
 app.use(express.json());
+
+// Menghubungkan frontend
+app.use(express.static(path.join(__dirname, "public")));
+
+// Menampilkan halaman utama
+app.get("/", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+// ========================================
+// FUNGSI BLYNK
+// ========================================
 
 // Mengambil data dari Blynk
 async function getBlynkValue(pin) {
@@ -40,19 +59,26 @@ async function updateBlynkValue(pin, value) {
     });
 }
 
-// Mengecek backend
+// ========================================
+// API HEALTH CHECK
+// ========================================
+
 app.get("/api/health", (req, res) => {
     res.json({
+        success: true,
         status: "OK",
         message: "Smart Egg Incubator Backend aktif"
     });
 });
 
-// Mengambil data monitoring
+// ========================================
+// API MONITORING
+// ========================================
+
 app.get("/api/monitoring", async (req, res) => {
     try {
-        if (!BLYNK_TOKEN || !BLYNK_URL) {
-            throw new Error("Konfigurasi Blynk belum tersedia");
+        if (!BLYNK_TOKEN) {
+            throw new Error("Token Blynk belum dikonfigurasi");
         }
 
         const [
@@ -77,6 +103,7 @@ app.get("/api/monitoring", async (req, res) => {
             setpoint
         };
 
+        // Memastikan semua data valid
         for (const [key, value] of Object.entries(values)) {
             if (!Number.isFinite(value)) {
                 throw new Error(`Data ${key} tidak valid`);
@@ -99,16 +126,23 @@ app.get("/api/monitoring", async (req, res) => {
     }
 });
 
-// Mengubah setpoint melalui Blynk V4
+// ========================================
+// API SETPOINT
+// ========================================
+
 app.post("/api/setpoint", async (req, res) => {
     try {
-        if (!BLYNK_TOKEN || !BLYNK_URL) {
-            throw new Error("Konfigurasi Blynk belum tersedia");
+        if (!BLYNK_TOKEN) {
+            throw new Error("Token Blynk belum dikonfigurasi");
         }
 
         const value = Number(req.body.setpoint);
 
-        if (!Number.isFinite(value) || value < 37 || value > 38) {
+        if (
+            !Number.isFinite(value) ||
+            value < 37 ||
+            value > 38
+        ) {
             return res.status(400).json({
                 success: false,
                 message: "Setpoint harus antara 37 sampai 38°C"
@@ -133,12 +167,19 @@ app.post("/api/setpoint", async (req, res) => {
     }
 });
 
-// Menjalankan server lokal
-// Vercel mendukung pola app.listen() untuk Express.
-app.listen(PORT, () => {
-    console.log("-----------------------------------");
-    console.log(" SMART EGG INCUBATOR");
-    console.log("-----------------------------------");
-    console.log(`Server berjalan pada port ${PORT}`);
-    console.log("-----------------------------------");
-});
+// ========================================
+// MENJALANKAN SERVER
+// ========================================
+
+if (require.main === module) {
+    app.listen(PORT, () => {
+        console.log("-----------------------------------");
+        console.log("       SMART EGG INCUBATOR");
+        console.log("-----------------------------------");
+        console.log(`Server berjalan di http://localhost:${PORT}`);
+        console.log("-----------------------------------");
+    });
+}
+
+// Export untuk deployment
+module.exports = app;
