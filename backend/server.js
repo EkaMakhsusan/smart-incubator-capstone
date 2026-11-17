@@ -1,10 +1,7 @@
 
 const express = require("express");
 const axios = require("axios");
-const path = require("path");
-require("dotenv").config({
-    path: path.join(__dirname, ".env")
-});
+require("dotenv").config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -14,16 +11,6 @@ const BLYNK_TOKEN = process.env.BLYNK_AUTH_TOKEN;
 
 // Middleware
 app.use(express.json());
-
-// Menampilkan website frontend
-app.use(express.static(path.join(__dirname, "../frontend")));
-
-// Memeriksa konfigurasi Blynk
-if (!BLYNK_TOKEN || !BLYNK_URL) {
-    console.error("Konfigurasi Blynk belum lengkap.");
-    console.error("Periksa BLYNK_AUTH_TOKEN dan BLYNK_BASE_URL.");
-    process.exit(1);
-}
 
 // Mengambil data dari Blynk
 async function getBlynkValue(pin) {
@@ -64,6 +51,10 @@ app.get("/api/health", (req, res) => {
 // Mengambil data monitoring
 app.get("/api/monitoring", async (req, res) => {
     try {
+        if (!BLYNK_TOKEN || !BLYNK_URL) {
+            throw new Error("Konfigurasi Blynk belum tersedia");
+        }
+
         const [
             temperature,
             humidity,
@@ -111,6 +102,10 @@ app.get("/api/monitoring", async (req, res) => {
 // Mengubah setpoint melalui Blynk V4
 app.post("/api/setpoint", async (req, res) => {
     try {
+        if (!BLYNK_TOKEN || !BLYNK_URL) {
+            throw new Error("Konfigurasi Blynk belum tersedia");
+        }
+
         const value = Number(req.body.setpoint);
 
         if (!Number.isFinite(value) || value < 37 || value > 38) {
@@ -138,8 +133,9 @@ app.post("/api/setpoint", async (req, res) => {
     }
 });
 
-// Menjalankan server
-app.listen(PORT, "0.0.0.0", () => {
+// Menjalankan server lokal
+// Vercel mendukung pola app.listen() untuk Express.
+app.listen(PORT, () => {
     console.log("-----------------------------------");
     console.log(" SMART EGG INCUBATOR");
     console.log("-----------------------------------");
